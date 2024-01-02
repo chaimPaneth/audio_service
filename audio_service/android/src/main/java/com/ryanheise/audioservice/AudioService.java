@@ -817,7 +817,35 @@ public class AudioService extends MediaBrowserServiceCompat {
         handler.post(this::updateNotification);
     }
 
+    synchronized MediaMetadataCompat setLocalMetadata(MediaMetadataCompat mediaMetadata) {
+        Bitmap artBitmap;
+        String artCacheFilePath = mediaMetadata.getString("artCacheFile");
+        if (artCacheFilePath != null) {
+            // Load local files and network images, cached in files
+            artBitmap = loadArtBitmap(artCacheFilePath, null);
+            mediaMetadata = putArtToLocalMetadata(mediaMetadata, artBitmap);
+        } else {
+            // Load content:// URIs
+            String artUri = mediaMetadata.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI);
+            if (artUri != null && artUri.startsWith("content:")) {
+                String loadThumbnailUri = mediaMetadata.getString("loadThumbnailUri");
+                artBitmap = loadArtBitmap(artUri, loadThumbnailUri);
+                mediaMetadata = putArtToLocalMetadata(mediaMetadata, artBitmap);
+            } else {
+//                artBitmap = null;
+            }
+        }
+        return mediaMetadata;
+    }
+
     private MediaMetadataCompat putArtToMetadata(MediaMetadataCompat mediaMetadata) {
+        return new MediaMetadataCompat.Builder(mediaMetadata)
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artBitmap)
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, artBitmap)
+                .build();
+    }
+
+    private MediaMetadataCompat putArtToLocalMetadata(MediaMetadataCompat mediaMetadata, Bitmap artBitmap) {
         return new MediaMetadataCompat.Builder(mediaMetadata)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, artBitmap)
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, artBitmap)

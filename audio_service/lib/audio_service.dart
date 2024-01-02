@@ -1539,7 +1539,7 @@ class _BackgroundAudioHandler extends BaseAudioHandler {
   Future<void> playFromMediaId(String mediaId,
           [Map<String, dynamic>? extras]) =>
       // ignore: deprecated_member_use_from_same_package
-      _task.onPlayFromMediaId(mediaId);
+      _task.onPlayFromMediaId(mediaId, extras);
 
   @override
   Future<void> playMediaItem(MediaItem mediaItem) =>
@@ -1739,7 +1739,7 @@ abstract class BackgroundAudioTask {
 
   /// Deprecated. Replaced by [AudioHandler.playFromMediaId].
   @Deprecated("Use AudioHandler.playFromMediaId instead.")
-  Future<void> onPlayFromMediaId(String mediaId) async {}
+  Future<void> onPlayFromMediaId(String mediaId, Map<String, dynamic>? extras) async {}
 
   /// Deprecated. Replaced by [AudioHandler.playMediaItem].
   @Deprecated("Use AudioHandler.playMediaItem instead.")
@@ -3891,7 +3891,7 @@ class _HandlerCallbacks extends AudioHandlerCallbacks {
 
   @override
   Future<void> playFromMediaId(PlayFromMediaIdRequest request) async =>
-      (await handlerFuture).playFromMediaId(request.mediaId);
+      (await handlerFuture).playFromMediaId(request.mediaId, request.extras);
 
   @override
   Future<void> playFromSearch(PlayFromSearchRequest request) async =>

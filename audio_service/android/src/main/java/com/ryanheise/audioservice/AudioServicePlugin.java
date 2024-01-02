@@ -1152,6 +1152,7 @@ public class AudioServicePlugin implements FlutterPlugin, ActivityAware {
 
     private static MediaBrowserCompat.MediaItem rawToMediaItem(Map<?, ?> rawMediaItem) {
         MediaMetadataCompat mediaMetadata = createMediaMetadata(rawMediaItem);
+        mediaMetadata = AudioService.instance.setLocalMetadata(mediaMetadata);
         final MediaDescriptionCompat description = addExtrasToMediaDescription(mediaMetadata.getDescription(), (Map<?, ?>)rawMediaItem.get("extras"));
         final Boolean playable = (Boolean)rawMediaItem.get("playable");
         return new MediaBrowserCompat.MediaItem(description, playable ? MediaBrowserCompat.MediaItem.FLAG_PLAYABLE : MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
