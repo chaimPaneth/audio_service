@@ -791,6 +791,14 @@ public class AudioServicePlugin implements FlutterPlugin, ActivityAware {
         }
 
         @Override
+        public void onCarConnectionChanged(String connectionState, Bundle extras) {
+            invokeMethod("carConnectionChanged", mapOf(
+                    "name", connectionState,
+                    "extras", bundleToMap(extras)
+            ));
+        }
+
+        @Override
         public void onSetRating(RatingCompat rating) {
             invokeMethod("setRating", mapOf(
                         "rating", rating2raw(rating),

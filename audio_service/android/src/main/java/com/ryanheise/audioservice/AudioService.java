@@ -29,8 +29,10 @@ import android.util.Size;
 import android.view.KeyEvent;
 
 import androidx.annotation.RequiresApi;
+import androidx.car.app.connection.CarConnection;
 import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Observer;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.app.NotificationCompat.MediaStyle;
@@ -283,6 +285,7 @@ public class AudioService extends MediaBrowserServiceCompat {
     private boolean notificationCreated;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private VolumeProviderCompat volumeProvider;
+    private CarConnection carConnection;
 
     public AudioProcessingState getProcessingState() {
         return processingState;
@@ -343,6 +346,8 @@ public class AudioService extends MediaBrowserServiceCompat {
 
         flutterEngine = AudioServicePlugin.getFlutterEngine(this);
         System.out.println("flutterEngine warmed up");
+        
+        initCarConnectionListener();
     }
 
     @Override
@@ -380,6 +385,11 @@ public class AudioService extends MediaBrowserServiceCompat {
         releaseWakeLock();
         instance = null;
         notificationCreated = false;
+
+        if (carConnection != null) {
+            carConnection.getType().removeObserver(carConnectionObserver);
+            carConnection = null;
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -1181,6 +1191,7 @@ public class AudioService extends MediaBrowserServiceCompat {
         void onSetCaptioningEnabled(boolean enabled);
         void onSetVolumeTo(int volumeIndex);
         void onAdjustVolume(int direction);
+        void onCarConnectionChanged(String connectionState, Bundle extras);
 
         //
         // NON-STANDARD METHODS
@@ -1190,5 +1201,41 @@ public class AudioService extends MediaBrowserServiceCompat {
         void onTaskRemoved();
         void onClose();
         void onDestroy();
+    }
+
+    private final Observer<Integer> carConnectionObserver = new Observer<Integer>() {
+        @Override
+        public void onChanged(Integer connectionType) {
+            handleCarConnectionChange(connectionType);
+        }
+    };
+
+    private void initCarConnectionListener() {
+        carConnection = new CarConnection(getApplicationContext());
+        carConnection.getType().observeForever(carConnectionObserver);
+    }
+
+    private void handleCarConnectionChange(int connectionType) {
+        if (listener == null) return;
+
+        String connectionState;
+        switch (connectionType) {
+            case CarConnection.CONNECTION_TYPE_NOT_CONNECTED:
+                connectionState = CarConnectionState.DISCONNECTED;
+                break;
+            case CarConnection.CONNECTION_TYPE_NATIVE:
+                connectionState = CarConnectionState.AUTOMOTIVE_CONNECTED;
+                break;
+            case CarConnection.CONNECTION_TYPE_PROJECTION:
+                connectionState = CarConnectionState.CONNECTED;
+                break;
+            default:
+                connectionState = CarConnectionState.UNKNOWN;
+        }
+
+        Bundle extras = new Bundle();
+        extras.putString("connectionType", connectionState);
+
+        listener.onCarConnectionChanged(connectionState, extras);
     }
 }

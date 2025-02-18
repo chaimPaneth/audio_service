@@ -573,6 +573,22 @@ void main() {
       );
     });
 
+    test('carConnectionChanged', () async {
+      const request = CarConnectionChangedResult(
+        name: 'name',
+        extras: Stubs.map,
+      );
+      when(callbacks.carConnectionChanged(captureAny))
+          .thenAnswer((_) => Future<void>.value());
+      await handlerChannel.invokeMethod<void>('carConnectionChanged', request.toMap());
+      final captured = verify(callbacks.carConnectionChanged(captureAny)).captured.first
+          as CarConnectionChangedResult;
+      expect(
+        captured.toMap(),
+        equals(request.toMap()),
+      );
+    });
+
     test('onTaskRemoved', () async {
       const request = OnTaskRemovedRequest();
       await handlerChannel.invokeMethod<void>('onTaskRemoved', request.toMap());

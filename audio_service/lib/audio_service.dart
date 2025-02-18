@@ -1541,6 +1541,11 @@ class AudioService {
   static final Future<dynamic> Function(String, Map<String, dynamic>)
       customAction = _compatibilitySwitcher.customAction;
 
+  /// Deprecated. Use [AudioHandler.carConnectionChanged] instead.
+  @Deprecated("Use AudioHandler.carConnectionChanged instead.")
+  static final Future<dynamic> Function(String, Map<String, dynamic>)
+      carConnectionChanged = _compatibilitySwitcher.carConnectionChanged;
+
   /// Deprecated. Use [position] instead.
   @Deprecated("Use position instead.")
   static final ValueStream<Duration> positionStream =
@@ -1683,6 +1688,11 @@ class _BackgroundAudioHandler extends BaseAudioHandler {
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) =>
       // ignore: deprecated_member_use_from_same_package
       _task.onCustomAction(name, extras);
+
+  @override
+  Future<dynamic> carConnectionChanged(String name, [Map<String, dynamic>? extras]) =>
+      // ignore: deprecated_member_use_from_same_package
+      _task.onCarConnectionChanged(name, extras);
 
   @override
   // ignore: deprecated_member_use_from_same_package
@@ -1849,6 +1859,10 @@ abstract class BackgroundAudioTask {
   @Deprecated("Use AudioHandler.customAction instead.")
   Future<dynamic> onCustomAction(String name, dynamic arguments) async {}
 
+  /// Deprecated. Replaced by [AudioHandler.carConnectionChanged].
+  @Deprecated("Use AudioHandler.carConnectionChanged instead.")
+  Future<dynamic> onCarConnectionChanged(String name, [Map<String, dynamic>? extras]) async {}
+
   /// Deprecated. Replaced by [AudioHandler.onTaskRemoved].
   @Deprecated("Use AudioHandler.onTaskRemoved instead.")
   Future<void> onTaskRemoved() async {}
@@ -1982,6 +1996,9 @@ abstract class AudioHandler {
 
   /// A mechanism to support app-specific actions.
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]);
+
+  /// Listen for changes in car connections
+  Future<void> carConnectionChanged(String name, [Map<String, dynamic>? extras]);
 
   /// Handle the task being swiped away in the task manager (Android).
   Future<void> onTaskRemoved();
@@ -2288,6 +2305,11 @@ class CompositeAudioHandler extends AudioHandler {
   @mustCallSuper
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) =>
       _inner.customAction(name, extras);
+
+  @override
+  @mustCallSuper
+  Future<dynamic> carConnectionChanged(String name, [Map<String, dynamic>? extras]) =>
+      _inner.carConnectionChanged(name, extras);
 
   @override
   @mustCallSuper
@@ -2598,6 +2620,12 @@ class IsolatedAudioHandler extends CompositeAudioHandler {
             request.arguments![1] as Map<String, dynamic>?,
           ));
           break;
+        case 'carConnectionChanged':
+          request.sendPort.send(await carConnectionChanged(
+            request.arguments![0] as String,
+            request.arguments![1] as Map<String, dynamic>?,
+          ));
+          break;
         case 'onTaskRemoved':
           await onTaskRemoved();
           request.sendPort.send(null);
@@ -2668,6 +2696,11 @@ class IsolatedAudioHandler extends CompositeAudioHandler {
     } else {
       return super.customAction(name, extras);
     }
+  }
+
+  @override
+  Future<dynamic> carConnectionChanged(String name, [Map<String, dynamic>? extras]) async {
+    return super.carConnectionChanged(name, extras);
   }
 }
 
@@ -2857,6 +2890,10 @@ class _ClientIsolatedAudioHandler implements BaseAudioHandler {
   @override
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) =>
       _send('customAction', <dynamic>[name, extras]);
+
+  @override
+  Future<dynamic> carConnectionChanged(String name, [Map<String, dynamic>? extras]) =>
+      _send('carConnectionChanged', <dynamic>[name, extras]);
 
   @override
   Future<void> onTaskRemoved() => _send('onTaskRemoved');
@@ -3180,6 +3217,9 @@ class BaseAudioHandler extends AudioHandler {
   @override
   Future<dynamic> customAction(String name,
       [Map<String, dynamic>? extras]) async {}
+  
+  @override
+  Future<dynamic> carConnectionChanged(String name, [Map<String, dynamic>? extras]) async {}
 
   @override
   Future<void> onTaskRemoved() async {}
@@ -3867,6 +3907,10 @@ class _HandlerCallbacks extends AudioHandlerCallbacks {
   @override
   Future<dynamic> customAction(CustomActionRequest request) async =>
       (await handlerFuture).customAction(request.name, request.extras);
+  
+  @override
+  Future<dynamic> carConnectionChanged(CarConnectionChangedRequest request) async =>
+      (await handlerFuture).carConnectionChanged(request.name, request.extras);
 
   @override
   Future<void> fastForward(FastForwardRequest request) async =>

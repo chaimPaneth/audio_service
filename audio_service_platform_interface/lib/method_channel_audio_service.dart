@@ -205,6 +205,12 @@ class MethodChannelAudioService extends AudioServicePlatform {
             extras:
                 _castMap(call.arguments['extras'] as Map<dynamic, dynamic>?)));
         return null;
+      case 'carConnectionChanged':
+        await callbacks.carConnectionChanged(CarConnectionChangedRequest(
+            name: call.arguments['name'] as String,
+            extras:
+                _castMap(call.arguments['extras'] as Map<dynamic, dynamic>?)));
+        return null;
       case 'onTaskRemoved':
         await callbacks.onTaskRemoved(const OnTaskRemovedRequest());
         return null;

@@ -182,6 +182,10 @@ class MockAudioHandlerCallbacks extends _i1.Mock
       (super.noSuchMethod(Invocation.method(#customAction, [request]),
           returnValue: Future<dynamic>.value()) as _i3.Future<dynamic>);
   @override
+  _i3.Future<dynamic> carConnectionChanged(_i2.CarConnectionChangedResult? request) =>
+      (super.noSuchMethod(Invocation.method(#carConnectionChanged, [request]),
+          returnValue: Future<dynamic>.value()) as _i3.Future<dynamic>);
+  @override
   _i3.Future<void> onTaskRemoved(_i2.OnTaskRemovedRequest? request) =>
       (super.noSuchMethod(Invocation.method(#onTaskRemoved, [request]),
           returnValue: Future<void>.value(),

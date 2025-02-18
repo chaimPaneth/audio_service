@@ -170,6 +170,9 @@ abstract class AudioHandlerCallbacks {
   /// A mechanism to support app-specific actions.
   Future<dynamic> customAction(CustomActionRequest request);
 
+  /// A listener for car connection changes
+  Future<dynamic> carConnectionChanged(CarConnectionChangedRequest request);
+
   /// Handle the task being swiped away in the task manager (Android).
   Future<void> onTaskRemoved(OnTaskRemovedRequest request);
 
@@ -1185,6 +1188,19 @@ class CustomActionRequest {
 
   @literal
   const CustomActionRequest({required this.name, this.extras});
+
+  Map<String, dynamic> toMap() => <String, dynamic>{
+        'name': name,
+        'extras': extras,
+      };
+}
+
+class CarConnectionChangedRequest {
+  final String name;
+  final Map<String, dynamic>? extras;
+
+  @literal
+  const CarConnectionChangedRequest({required this.name, this.extras});
 
   Map<String, dynamic> toMap() => <String, dynamic>{
         'name': name,
