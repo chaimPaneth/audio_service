@@ -318,6 +318,8 @@ public class AudioService extends MediaBrowserServiceCompat {
         configure(new AudioServiceConfig(getApplicationContext()));
 
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
+        // Enable heart rating for Android Auto
+        mediaSession.setRatingType(RatingCompat.RATING_HEART);
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
                 .setActions(AUTO_ENABLED_ACTIONS);
         mediaSession.setPlaybackState(stateBuilder.build());
