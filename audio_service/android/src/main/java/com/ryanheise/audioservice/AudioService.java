@@ -147,6 +147,7 @@ public class AudioService extends MediaBrowserServiceCompat {
             builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, displayDescription);
         if (rating != null) {
             builder.putRating(MediaMetadataCompat.METADATA_KEY_RATING, rating);
+            builder.putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, rating);
         }
         if (extras != null) {
             for (Object o : extras.keySet()) {
